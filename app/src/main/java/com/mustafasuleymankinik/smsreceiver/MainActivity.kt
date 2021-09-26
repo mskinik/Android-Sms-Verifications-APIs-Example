@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     private fun takeCode(sms:String) {
         binding.tvSms.text = sms.substring(53,57)
         binding.progressBar.visibility = View.GONE
+        binding.ivDone.visibility = View.VISIBLE
     }
 
     override fun onStop() {

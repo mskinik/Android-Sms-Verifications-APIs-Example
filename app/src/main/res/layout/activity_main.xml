@@ -10,13 +10,12 @@
         android:id="@+id/bt_receive_sms"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="216dp"
         android:text="Receive Sms"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.68" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_sms" />
 
     <TextView
         android:id="@+id/tv_sms"
@@ -24,18 +23,34 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="239dp"
         android:hint="Waiting sms"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
         android:text=""
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/iv_done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="24dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/tv_sms"
+        app:layout_constraintTop_toBottomOf="@+id/tv_sms"
+        android:src="@drawable/ic_baseline_done_all_36"/>
+
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="42dp"
-        android:layout_marginEnd="14dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="@+id/tv_sms"
         app:layout_constraintTop_toBottomOf="@+id/tv_sms" />
 </androidx.constraintlayout.widget.ConstraintLayout>
