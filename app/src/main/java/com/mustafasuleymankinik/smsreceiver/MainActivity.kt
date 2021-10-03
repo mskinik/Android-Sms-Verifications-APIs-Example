@@ -1,16 +1,20 @@
 package com.mustafasuleymankinik.smsreceiver
 
+import android.app.Activity
+import android.content.Intent
 import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.gms.auth.api.phone.SmsRetrieverClient
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.mustafasuleymankinik.smsreceiver.databinding.ActivityMainBinding
-import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
     companion object{
@@ -20,51 +24,54 @@ class MainActivity : AppCompatActivity() {
     private lateinit var smsBroadCastReceiver: SmsBroadCastReceiver
     private var intentFilter: IntentFilter? = null
     private lateinit var client:SmsRetrieverClient
+    private lateinit var launcher: ActivityResultLauncher<Intent>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()
+            ,ActivityResultCallback{result ->
+                if (result.resultCode == Activity.RESULT_OK)
+                {
+                    result.data?.let {
+                        binding.tvSms.text = result.data?.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE)?.substring(7,11)
+                        binding.progressBar.visibility = View.GONE
+                        binding.ivDone.visibility = View.VISIBLE
+                    }
+                }
+            })
 
+    }
+
+    override fun onResume() {
+        super.onResume()
         binding.btReceiveSms.setOnClickListener {
             binding.progressBar.visibility = View.VISIBLE
             initSmsRetriever()
-            initBroadCastReceiver()
+            initBroadcastReceiver()
         }
-
     }
+    
     private fun initSmsRetriever() {
 
         client = SmsRetriever.getClient(this)
-        val task = client.startSmsRetriever()
-        task.addOnSuccessListener(object : OnSuccessListener<Void> {
-            override fun onSuccess(p0: Void?) {
-                Log.d(TAG, "onSuccess:$p0")
-            }
-        })
-        task.addOnFailureListener(object : OnFailureListener {
-            override fun onFailure(p0: Exception) {
-                p0.printStackTrace()
-            }
-        })
+        val task = client.startSmsUserConsent(null)
     }
 
-    private fun initBroadCastReceiver() {
-        intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
+    private fun initBroadcastReceiver() {
         smsBroadCastReceiver = SmsBroadCastReceiver()
         smsBroadCastReceiver.setListener(object : SmsListener{
-            override fun smsCode(sms: String) {
-                takeCode(sms)
+            override fun getIntent(intent: Intent?) {
+                intent?.let {
+
+                    launcher.launch(it)
+                }
             }
         })
+        intentFilter = IntentFilter(SmsRetriever.SMS_RETRIEVED_ACTION)
         registerReceiver(smsBroadCastReceiver,intentFilter)
-    }
-
-    private fun takeCode(sms:String) {
-        binding.tvSms.text = sms.substring(53,57)
-        binding.progressBar.visibility = View.GONE
-        binding.ivDone.visibility = View.VISIBLE
     }
 
     override fun onStop() {

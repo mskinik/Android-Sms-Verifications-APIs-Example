@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.app.ActivityCompat.startActivityForResult
 import com.google.android.gms.auth.api.phone.SmsRetriever
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.android.gms.common.api.Status
@@ -12,6 +13,9 @@ import com.google.android.gms.common.api.Status
  * Created by mustafasuleymankinik on 25.09.2021.
  */
 class SmsBroadCastReceiver: BroadcastReceiver() {
+    companion object{
+        val RESULT_REQUEST_CODE = 2
+    }
     lateinit var smsListener1: SmsListener
 
     fun setListener(smsListener: SmsListener){
@@ -27,8 +31,10 @@ class SmsBroadCastReceiver: BroadcastReceiver() {
             {
 
                 CommonStatusCodes.SUCCESS -> {
-                    val message = bundle.get(SmsRetriever.EXTRA_SMS_MESSAGE)
-                    smsListener1.smsCode(message as String)
+                  val consentIntent = bundle.getParcelable<Intent>(SmsRetriever.EXTRA_CONSENT_INTENT)
+                    val message:Any? = consentIntent?.getStringExtra(SmsRetriever.EXTRA_SMS_MESSAGE)
+                    smsListener1.getIntent(consentIntent)
+
                 }
                 CommonStatusCodes.TIMEOUT -> print("Time Out")
                 else -> print("Other unsuccessful issue")
